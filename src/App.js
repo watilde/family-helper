@@ -1,24 +1,32 @@
-import logo from './logo.svg';
+import { useEffect, useState } from 'react';
 import './App.css';
+import Amplify, { API, graphqlOperation } from 'aws-amplify';
+import { AmplifyAuthenticator, AmplifySignOut } from '@aws-amplify/ui-react';
+import awsConfig from './aws-exports';
+import { listLists } from './graphql/queries';
+
+Amplify.configure(awsConfig);
 
 function App() {
+  const [list, setList] = useState([]);
+  async function fetchList() {
+    const { data } = await API.graphql(graphqlOperation(listLists));
+    setList(data.listLists.items);
+    console.log(data);
+  }
+  useEffect(() => {
+    fetchList();
+  }, []);
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <AmplifyAuthenticator>
+      <div className="App">
+        <h1>Welcome to Amplify</h1>
+        <ul>
+          {list.map(item => <li>{item.title}</li>)}
+        </ul>
+        <AmplifySignOut />
+      </div>
+    </AmplifyAuthenticator>
   );
 }
 
