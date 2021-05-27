@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import './App.css';
-import Amplify, { API, graphqlOperation } from 'aws-amplify';
+import Amplify, { Auth, API, graphqlOperation } from 'aws-amplify';
 import { AmplifyAuthenticator, AmplifySignOut } from '@aws-amplify/ui-react';
 import awsConfig from './aws-exports';
 import { listLists } from './graphql/queries';
@@ -14,8 +14,14 @@ function App() {
     setList(data.listLists.items);
     console.log(data);
   }
-  useEffect(() => {
-    fetchList();
+  useEffect(async () => {
+    try {
+      const data = await Auth.currentSession();
+      if (data) {
+        await fetchList();
+      }
+    } catch (e) {
+    }
   }, []);
   return (
     <AmplifyAuthenticator>
